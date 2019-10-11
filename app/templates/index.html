@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="mt-4">{{ title }}</h1>
+
+{% for key, item in index.items() %}
+  <h2 class="mt-4">{{ key }}<h2>
+  {% for id, values in item.items() %}
+    <a class="btn text-white z-depth-0 unique-color" href="{{ url_for('chapter', chapter_id=id) }}">{{ values.number }}</a>
+  {% endfor %}
+{% endfor %}
+
+{% endblock %}

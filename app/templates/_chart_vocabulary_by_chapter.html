@@ -1,0 +1,47 @@
+<canvas id="chart_vocab_by_chapter" width="900px" height="400"></canvas>
+<script>
+  var data = {
+    labels: [
+      {% for label, value in vocab_by_chapter %}
+        "{{ label }}",
+      {% endfor %}
+    ],
+    datasets: [{
+      label: "Vocabulary",
+      borderColor: "rgb(137, 221, 255, 1)",
+      backgroundColor: "rgb(137, 221, 255, 0.1)",
+      data: [
+        {% for label, value in vocab_by_chapter %}
+          {{ value }},
+        {% endfor %}
+      ]
+    },{
+      label: "New Characters",
+      borderColor: "rgb(242, 195, 242, 1)",
+      backgroundColor: "rgb(242, 195, 242, 0.1)",
+      data: [
+        {% for i in new_chars %}
+          {{ new_chars[i] }},
+        {% endfor %}
+      ]
+    }]
+}
+
+  var ctx = document.getElementById("chart_vocab_by_chapter").getContext("2d");
+  var chart = new Chart(ctx, {
+    type: 'line',
+    data: data,
+    options: {
+      legend: {
+        display: false
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
+          }
+        }]
+      }
+    }
+  });
+</script>

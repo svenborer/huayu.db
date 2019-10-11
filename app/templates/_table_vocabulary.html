@@ -1,0 +1,47 @@
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Vocabulary</th>
+      <th scope="col">Pinyin</th>
+      <th scope="col">Translation</th>
+      <th scope="col">Book</th>
+      <th scope="col">Chapter</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for v in vocabulary %}
+    <tr>
+      <th scope="row">
+          <a href="{{ url_for('get_vocabulary', vocabulary_id=v.id) }}">
+              <h4>{{ v.hanzi|replace('／','<br>')|safe }}</h4>
+          </a>
+      </th>
+      <td>
+          {{ v.pinyin|replace('／','<br>')|safe }}
+      </td>
+      <td>
+        {% for t in v.translation %}
+        <p>
+            <a class="btn btn-sm z-depth-0 mr-2 white-text {{ t.gram_term.color }}"
+              href="{{ url_for('vocabulary_by_grammatical_term', gram_term_id=t.gram_term_id) }}">
+              {{ t.gram_term.id }}
+      </a>
+          {{ t.translation_en|truncate(60) }}</p>
+        {% endfor %}
+      </td>
+      <td>
+        <a class="btn btn-sm z-depth-0 white-text {{ v.chapter.book.color }}"
+          href="{{ url_for('vocabulary_by_book', book_id=v.chapter.book.id) }}">
+          {{ v.chapter.book.short_name }}
+      </a>
+      </td>
+      <td>
+        <a class="btn btn-sm z-depth-0 white-text {{ v.chapter.color }}"
+          href="{{ url_for('chapter', chapter_id=v.chapter.id) }}">
+          {{ v.chapter.number }}
+      </a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

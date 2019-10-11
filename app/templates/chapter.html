@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js'></script>
+
+<h1 class="mt-4">{{ title }}</h1>
+
+<h2 class="mt-4">Vocabulary</h2>
+{% include '_table_vocabulary.html' %}
+<hr>
+
+{% if grammar[0] %}
+<h2 class="mt-4">Grammar</h2>
+{% include '_table_grammar.html' %}
+<hr>
+{% endif %}
+
+<h2 class="mt-4">Statistic</h2>
+{% include '_chart_grammatical_terms_by_chapter.html' %}
+<hr>
+
+{% endblock %}

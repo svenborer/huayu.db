@@ -1,0 +1,18 @@
+* {
+  font-family: 'Source Sans Pro', 'Noto Sans TC', sans-serif;
+}
+
+h1 {
+font-size: 40px;
+}
+
+.highlight {
+  color: black;
+  font-weight: lighter;
+  font-size: 25px;
+}
+
+.example {
+  color: #666666;
+  font-size: 20px;
+}

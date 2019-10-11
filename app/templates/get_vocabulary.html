@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col mt-3">
+            <!-- Title -->
+            <div class="float-left">
+                <h1 id="hanzi">{{ vocabulary.hanzi }}</h1>
+                <!-- Subtitle -->
+                <p>{{ vocabulary.pinyin }}</p>
+            </div>
+            <div class="float-right">
+                <a class="btn btn-sm z-depth-0 white-text {{ vocabulary.chapter.book.color }}"
+                    href="{{ url_for('grammar_by_book', book_id=vocabulary.chapter.book.id) }}">
+                    {{ vocabulary.chapter.book.short_name }}
+                </a>
+                <a class="btn btn-sm z-depth-0 white-text {{ vocabulary.chapter.color }}"
+                    href="{{ url_for('chapter', chapter_id=vocabulary.chapter.id) }}">
+                    {{ vocabulary.chapter.number }}
+                </a>
+            </div>
+        </div>
+    </div>
+    <hr>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col mt-3">
+            <!-- Card content -->
+            <!-- Text -->
+            {% for t in vocabulary.translation %}
+            <a class="btn btn-sm z-depth-0 {{ t.gram_term.color}}" id="gram_term"
+                href="{{ url_for('vocabulary_by_grammatical_term', gram_term_id=t.gram_term_id) }}">
+                {{ t.gram_term.id }}
+            </a>
+            <span>{{ t.translation_en }}</span>
+            <br>
+            {% for e in t.example %}
+                <span class="example">{{ e.example }}</span>
+                <br>
+            {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+    <hr>
+    {% if vocabulary.additional_vocabulary %}
+
+    <!-- Title -->
+    <h5 class="font-weight-lighter pt-3 pb-3">Same vocabulary in other chapters</h5>
+    {% for a in vocabulary.additional_vocabulary %}
+    {% for t in a.translation %}
+    <div class="row">
+        <div class="col">
+            <div class="float-left">
+                <a class="btn btn-sm z-depth-0 {{ t.gram_term.color}}" id="gram_term"
+                    href="{{ url_for('vocabulary_by_grammatical_term', gram_term_id=t.gram_term_id) }}">
+                    {{ t.gram_term.id }}
+                </a>
+                <span>{{ t.translation_en }}</span>
+                <br>
+                {% for e in t.example %}
+                <span class="example">{{ e.example }}</span>
+                <br>
+                {% endfor %}
+            </div>
+            <div class="float-right">
+                <a class="btn btn-sm z-depth-0 white-text {{ a.chapter.book.color }}"
+                    href="{{ url_for('grammar_by_book', book_id=a.chapter.book.id) }}">
+                    {{ a.chapter.book.short_name }}
+                </a>
+                <a class="btn btn-sm z-depth-0 white-text {{ a.chapter.color }}"
+                    href="{{ url_for('chapter', chapter_id=a.chapter.id) }}">
+                    {{ a.chapter.number }}
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% endfor %}
+    <hr>
+    {% endif %}
+    {% if vocabulary.additional_examples %}
+    <h5 class="font-weight-lighter pt-3 pb-3">All examples</h5>
+    <div class="row">
+        <div class="col">
+            {% for a in vocabulary.additional_examples %}
+            <span class="example">{{ a }}</span>
+            <br>
+            {% endfor %}
+        </div>
+    </div>
+    <hr>
+    {% endif %}
+</div>
+
+<script>
+
+    var hanzi = $('#hanzi').text();
+    var hanzi_list = hanzi.split('／');
+
+    $('.example').each(function () {
+        e = $(this)
+        hanzi_list.forEach(function (item) {
+            if (item.match(/….*/)) {
+                item.split('…').forEach(function (item) {
+                    var re = new RegExp(item,"g");
+                    example = e.html().replace(re, "<span class=\"highlight\">" + item + "</span>")
+                    e.html(example);
+                })
+            } else {
+                var re = new RegExp(item,"g");
+                example = e.html().replace(re, "<span class=\"highlight\">" + item + "</span>")
+                e.html(example);
+            }
+        })
+    });
+
+</script>
+
+{% endblock %}

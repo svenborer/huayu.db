@@ -1,0 +1,36 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Grammar</th>
+            <th scope="col">Description</th>
+            <th scope="col">Book</th>
+            <th scope="col">Chapter</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for g in grammar %}
+        <tr>
+            <th scope="row">
+                <a href="{{ url_for('get_grammar', grammar_id=g.id) }}">
+                    <h4>{{ g.grammar_pattern }}</h4>
+                </a>
+            </th>
+            <td>
+                {{ g.short_description }}
+            </td>
+            <td>
+                <a class="btn btn-sm z-depth-0 white-text {{ g.chapter.book.color }}"
+                    href="{{ url_for('grammar_by_book', book_id=g.chapter.book.id) }}">
+                    {{ g.chapter.book.short_name }}
+                </a>
+            </td>
+            <td>
+                <a class="btn btn-sm z-depth-0 white-text {{ g.chapter.color }}"
+                    href="{{ url_for('chapter', chapter_id=g.chapter.id) }}">
+                    {{ g.chapter.number }}
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

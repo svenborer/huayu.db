@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js'></script>
+
+<h1 class="mt-4">{{ title }}</h1>
+
+<h2 class="mt-4">Vocabulary / New characters per chapter</h2>
+
+{% include '_chart_vocabulary_by_chapter.html' %}
+
+<h2 class="mt-4">Total vocabulary</h2>
+
+{% include '_chart_vocabulary_total.html' %}
+
+<h2 class="mt-4">Grammatical terms per chapter</h2>
+
+{% include '_chart_grammatical_terms_by_chapter.html' %}
+
+{% endblock %}

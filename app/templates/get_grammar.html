@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<input id="search_pattern" type="hidden" value="{{ grammar.search_pattern }}">
+
+<div class="container">
+    <div class="row">
+        <div class="col mt-3">
+            <!-- Title -->
+            <div class="float-left">
+                <h1 id="hanzi">{{ grammar.grammar_pattern }}</h1>
+                <!-- Subtitle -->
+                <p>{{ grammar.short_description }}</p>
+            </div>
+            <div class="float-right">
+                <a class="btn btn-sm z-depth-0 white-text {{ grammar.chapter.book.color }}"
+                    href="{{ url_for('grammar_by_book', book_id=grammar.chapter.book.id) }}">
+                    {{ grammar.chapter.book.short_name }}
+                </a>
+                <a class="btn btn-sm z-depth-0 white-text {{ grammar.chapter.color }}"
+                    href="{{ url_for('chapter', chapter_id=grammar.chapter.id) }}">
+                    {{ grammar.chapter.number }}
+                </a>
+            </div>
+        </div>
+    </div>
+    <hr>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col mt-3">
+            <!-- Card content -->
+            <!-- Text -->
+            <p>{{ grammar.explanation }}</p>
+            {% for e in grammar.example %}
+            <p class="example">{{ e.example }}<p>
+            {% endfor %}
+            <hr>
+            <h5 class="font-weight-lighter pt-3 pb-3">Additional examples</h5>
+            {% for e in grammar.additional_examples %}
+            <span class="example">{{ e }}</span>
+            <br>
+            {% endfor %}
+            <hr>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    var pattern = $('#search_pattern').val();
+    var pattern_list = pattern.split('%')
+    var pattern_list = pattern_list.filter(n => n);
+    
+    console.log(pattern)
+    console.log(pattern_list)
+
+    $('.example').each(function () {
+        e = $(this)
+        pattern_list.forEach(function (item) {
+            if (item.match(/….*/)) {
+                item.split('…').forEach(function (item) {
+                    var re = new RegExp(item,"g");
+                    example = e.html().replace(re, "<span class=\"highlight\">" + item + "</span>")
+                    e.html(example);
+                })
+            } else {
+                var re = new RegExp(item,"g");
+                example = e.html().replace(re, "<span class=\"highlight\">" + item + "</span>")
+                e.html(example);
+            }
+        })
+    });
+
+</script>
+
+{% endblock %}

@@ -1,10 +1,13 @@
 from app import app, db
-from app.models import Vocabulary, Translation, TranslationExample, asoc_translation_example, asoc_grammar_example
+from app.models import Vocabulary, Translation, TranslationExample, Book, Chapter, GrammaticalTerm, asoc_translation_example, asoc_grammar_example
 import csv
 
 Vocabulary.query.delete()
 Translation.query.delete()
 TranslationExample.query.delete()
+Chapter.query.delete()
+Book.query.delete()
+GrammaticalTerm.query.delete()
 
 with open('csv/main.csv') as csv_file:
     csv_reader = csv.DictReader(csv_file, delimiter=',')
@@ -47,5 +50,47 @@ with open('csv/main.csv') as csv_file:
                 translation_id=a_translation_id,
                 example_id=a_example_id)
             db.session.execute(s)
+
+with open('csv/tbl_chapter.csv') as csv_file:
+    csv_reader = csv.DictReader(csv_file, delimiter=',')
+    for row in csv_reader:
+        c_id = row['id']
+        c_number = row['number']
+        c_name = row['name']
+        c_book_id = row['book_id']
+        if c_id and c_number and c_name and c_book_id:
+            c = Chapter(
+                id = c_id,
+                number = c_number,
+                name = c_name,
+                book_id = c_book_id
+            )
+            db.session.add(c)
+
+with open('csv/tbl_book.csv') as csv_file:
+    csv_reader = csv.DictReader(csv_file, delimiter=',')
+    for row in csv_reader:
+        b_id = row['id']
+        b_name = row['name']
+        b_short_name = row['short_name']
+        if b_id and b_name and b_short_name:
+            b = Book(
+                id = b_id,
+                name = b_name,
+                short_name = b_short_name
+            )
+            db.session.add(b)
+
+with open('csv/tbl_grammatical_term.csv') as csv_file:
+    csv_reader = csv.DictReader(csv_file, delimiter=',')
+    for row in csv_reader:
+        g_id = row['id']
+        g_name = row['name']
+        if g_id and g_name:
+            g = GrammaticalTerm(
+                id = g_id,
+                name = g_name,
+            )
+            db.session.add(g)
 
 db.session.commit()

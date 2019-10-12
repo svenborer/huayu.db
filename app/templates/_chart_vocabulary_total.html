@@ -7,12 +7,21 @@
       {% endfor %}
     ],
     datasets: [{
-      label: "Count",
+      label: "Total new vocabulary",
       borderColor: "rgb(137, 221, 255, 1)",
       backgroundColor: "rgb(137, 221, 255, 0.1)",
       data: [
         {% for label, value in total %}
           {{ value }},
+        {% endfor %}
+      ]
+  },{
+      label: "Total new characters",
+      borderColor: "rgb(242, 195, 242, 1)",
+      backgroundColor: "rgb(242, 195, 242, 0.1)",
+      data: [
+        {% for i in totalNewChars %}
+          {{ totalNewChars[i] }},
         {% endfor %}
       ]
   }]

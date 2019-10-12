@@ -72,8 +72,7 @@ def vocabulary_by_chapter(chapter_id):
 @app.route('/vocabulary/book/<book_id>')
 def vocabulary_by_book(book_id):
     vocabulary = Vocabulary.query \
-        .join(Chapter, (Chapter.id == Vocabulary.chapter_id)) \
-        .join(Book, (Book.id == Chapter.book_id)) \
+        .join(Chapter, Book) \
         .filter(Book.id == book_id)
     if vocabulary.first() is None:
         flash('No content found for book {}'.format(book_id))
@@ -228,6 +227,8 @@ def statistic():
     chapter_list = [c.chapter_id for c in db.session.query(Vocabulary.chapter_id).order_by(Vocabulary.chapter_id).group_by(Vocabulary.chapter_id).all()]
     unique_chars = []
     new_chars = {}
+    totalNewChars = {}
+    cTotal = 0
 
     for c in chapter_list:
         new_chars[c] = 0
@@ -237,12 +238,15 @@ def statistic():
                 if v[index] not in unique_chars:
                     unique_chars.append(v[index])
                     new_chars[c] += 1
+                    cTotal += 1
+        totalNewChars[c] = cTotal
                     
     return render_template('statistic.html',
         title='Statistics',
         grammar_by_chapter=grammar_by_chapter,
         vocab_by_chapter=vocab_by_chapter,
         new_chars=new_chars,
+        totalNewChars=totalNewChars,
         total=total)
 
 @app.route('/api/vocab/<vocab_id>', methods=['GET'])

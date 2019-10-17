@@ -158,9 +158,14 @@ def get_vocabulary(vocabulary_id):
 
 @app.route('/get/grammar/<grammar_id>')
 def get_grammar(grammar_id):
-    grammar = Grammar.query \
-        .filter_by(id=grammar_id) \
-        .first_or_404()
+    if grammar_id == 'random':
+        grammar = Grammar.query \
+            .order_by(func.random()) \
+            .first()
+    else:
+        grammar = Grammar.query \
+            .filter_by(id=grammar_id) \
+            .first_or_404()
     if grammar is None:
         return redirect(url_for('index'))
     return render_template('get_grammar.html',

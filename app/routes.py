@@ -177,13 +177,13 @@ def search():
     query = request.args.get('q')
     pattern = '%{}%'.format(query)
     vocabulary = Vocabulary.query \
-        .filter(Vocabulary.hanzi.like(pattern))
-    if vocabulary is None:
-        return redirect(url_for('index'))
+        .filter(Vocabulary.hanzi.like(pattern)).all()
+    grammar = Grammar.query \
+        .filter(Grammar.grammar_pattern.like(pattern)).all()
     return render_template('search.html',
         title='Search: {}'.format(query),
-        vocabulary=vocabulary)
-
+        vocabulary=vocabulary,
+        grammar=grammar)
 
 @app.route('/test', methods=['GET', 'POST'])
 def test():

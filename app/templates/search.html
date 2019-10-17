@@ -5,6 +5,17 @@
 <h1 class="mt-4">{{ title }}</h1>
 
 <h2 class="mt-4">Vocabulary</h2>
-{% include '_table_vocabulary.html' %}
+{% if vocabulary %}
+    {% include '_table_vocabulary.html' %}
+{% else %}
+    <p>No results.</p>
+{% endif %}
+
+<h2 class="mt-4">Grammar</h2>
+{% if grammar %}
+    {% include '_table_grammar.html' %}
+{% else %}
+    <p>No results.</p>
+{% endif %}
 
 {% endblock %}

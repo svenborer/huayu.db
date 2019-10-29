@@ -10,6 +10,7 @@
                 <h1 id="hanzi">{{ vocabulary.hanzi }}</h1>
                 <!-- Subtitle -->
                 <p>{{ vocabulary.pinyin }}</p>
+                <i class="far fa-star" id="fav-icon"></i>
             </div>
             <div class="float-right">
                 <a class="btn btn-sm z-depth-0 white-text {{ vocabulary.chapter.book.color }}"
@@ -115,6 +116,14 @@
                 e.html(example);
             }
         })
+    });
+
+    $(document).on("click", "i", function(){
+        switch (this.id) {
+            case "fav-icon":
+                $("#fav-icon").toggleClass('far fas');
+            break;
+        }
     });
 
 </script>

@@ -233,10 +233,13 @@ def statistic():
     unique_chars = []
     new_chars = {}
     totalNewChars = {}
+    c_unique_chars = {}
     cTotal = 0
 
     for c in chapter_list:
         new_chars[c] = 0
+        c_unique_chars[c] = 0
+        c_unique_chars_c = []
         vocab_list = [v.hanzi for v in Vocabulary.query.filter(Vocabulary.chapter_id == c).all()]
         for v in vocab_list:
             for index in range(len(v)):
@@ -244,14 +247,18 @@ def statistic():
                     unique_chars.append(v[index])
                     new_chars[c] += 1
                     cTotal += 1
+                if v[index] not in c_unique_chars_c:
+                    c_unique_chars_c.append(v[index])
+                    c_unique_chars[c] += 1
         totalNewChars[c] = cTotal
-                    
+
     return render_template('statistic.html',
         title='Statistics',
         grammar_by_chapter=grammar_by_chapter,
         vocab_by_chapter=vocab_by_chapter,
         new_chars=new_chars,
         totalNewChars=totalNewChars,
+        c_unique_chars=c_unique_chars,
         total=total)
 
 @app.route('/api/vocab/<vocab_id>', methods=['GET'])

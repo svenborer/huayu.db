@@ -1,5 +1,8 @@
 import random
-from sqlalchemy import func
+from sqlalchemy import (
+    func,
+    or_
+)
 from datetime import datetime
 from flask import (
     render_template,
@@ -177,7 +180,8 @@ def search():
     query = request.args.get('q')
     pattern = '%{}%'.format(query)
     vocabulary = Vocabulary.query \
-        .filter(Vocabulary.hanzi.like(pattern)).all()
+        .join(Translation)\
+        .filter(or_(Translation.translation_en.like(pattern), Vocabulary.hanzi.like(pattern))).all()
     grammar = Grammar.query \
         .filter(Grammar.grammar_pattern.like(pattern)).all()
     return render_template('search.html',

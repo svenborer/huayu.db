@@ -88,7 +88,7 @@ def vocabulary_by_book(book_id):
 @app.route('/grammar')
 def grammar():
     grammar = Grammar.query \
-        .order_by(Grammar.chapter_id)
+        .order_by(Grammar.chapter_id.desc())
     return render_template('grammar.html',
         title='Grammar',
         grammar=grammar)

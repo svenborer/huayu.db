@@ -1,4 +1,5 @@
 import random
+import re
 from sqlalchemy import (
     func,
     or_
@@ -19,7 +20,8 @@ from app.models import (
     Book,
     GrammaticalTerm,
     Statistic,
-    Grammar
+    Grammar,
+    TranslationExample
 )
 from app.schemas import (
     VocabularySchema,
@@ -138,6 +140,13 @@ def chapter(chapter_id):
         stats[g.id] = i[0][0]
     stats['END'] = 0
     grammar_by_chapter[chapter_id] = stats
+    tones = {}
+    for i in range(1,5):
+        tones[i] = 0
+    for v in [v.pinyin_numerical for v in vocabulary]:
+        for i in range(1,5):
+            regex = '[{}]'.format(i)
+            tones[i] += len(re.findall(regex, v))
     if vocabulary.first() is None and grammar.first() is None:
         flash('No content found for chapter {}'.format(chapter_id))
         return redirect(url_for('index'))
@@ -146,7 +155,8 @@ def chapter(chapter_id):
         title=title,
         vocabulary=vocabulary,
         grammar=grammar,
-        grammar_by_chapter=grammar_by_chapter)
+        grammar_by_chapter=grammar_by_chapter,
+        tones=tones)
 
 @app.route('/get/vocabulary/<vocabulary_id>')
 def get_vocabulary(vocabulary_id):
@@ -191,23 +201,20 @@ def search():
 
 @app.route('/test', methods=['GET', 'POST'])
 def test():
-    form = TestForm()
-    if form.validate_on_submit():
-        return redirect(url_for('test_chapter', chapter_id=form.chapter.data))
-    return render_template('test.html', title='Test', form=form)
+    return render_template('test.html', title='Test')
 
 @app.route('/test/<chapter_id>')
 def test_chapter(chapter_id):
-    ids = db.session.query(Vocabulary.id) \
-        .filter(Vocabulary.chapter_id == chapter_id) \
-        .order_by(func.random())
-    if ids.first() is None:
-        flash('No content found for chapter {}'.format(chapter_id))
-        return redirect(url_for('index'))
-    ids = [r[0] for r in ids]
+    vocab = [[v.hanzi, v.id] for v in Vocabulary.query.all()]
+    list = []
+    for v in vocab:
+        f = "%{}%".format(v[0])
+        c = db.session.query(TranslationExample).filter(TranslationExample.example.like(f)).count()
+        if c > 10:
+            list.append(v[1])
     return render_template('test_chapter.html',
-        title='Test Chapter {{ chapter.id }}',
-        ids=ids)
+        title='Test Chapter 0',
+        list=list)
 
 @app.route('/statistic')
 def statistic():

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="mt-4">{{ title }}</h1>
+
+<div class="container">
+    <div class="row">
+        <div class="col mt-3">
+            <div class="float-left">
+                <h1 id="hanzi"></h1>
+                <p id="pinyin"></p>
+            </div>
+            <div class="float-right">
+                <p id="chapter" class="btn btn-sm z-depth-0 white-text rgba-blue-strong"></p>
+            </div>
+        </div>
+    </div>
+    <hr>
+</div>
+
+<script type="text/javascript">
+
+// {"chapter":304,"hanzi":"包裹","id":1,"number_in_chapter":1,"pinyin":"bāoguǒ"
+// ,"pinyin_numerical":"bao1guo3","translation":[{"example":"[<Translation Example －>]","gram_term_id":"N","id":1,"translation_en":"parcel, package","vocabulary_id":1}]}
+
+document.onkeydown = checkKey;
+
+function checkKey(e) {
+    e = e || window.event;
+    if (e.keyCode == '32') {
+        if ($('#hanzi').is(":visible")){
+            switchVocab();
+        } else {
+            toggle();
+        }
+    }
+}
+
+function toggle() {
+    $('#hanzi').toggle();
+    $('#chapter').toggle();
+    $('#pinyin').toggle();
+}
+
+function switchVocab() {
+    if (list && list.length) {
+        console.log(list)
+        id = list[Math.floor(Math.random()*list.length)];
+        var index = list.indexOf(id);
+        if (index > -1) {
+            list.splice(index, 1);
+        }
+        url = "/api/vocab/" + id
+        $.ajax({
+            type: 'GET',
+            url: url,
+            dataType: 'json',
+            success: function (data) {
+                $('#translation').remove();
+                $('#hanzi').text(data.hanzi);
+                $('#pinyin').text(data.pinyin);
+                $('#chapter').text(data.chapter);
+                $( ".float-left" ).append( "<div id=\"translation\"></div>" );
+                var i = 0
+                for(var t in data.translation) {
+                    i++
+                    var tid = "translation" + i
+                    var gid = "gramterm" + i
+                    $( "#translation" ).append( "<p id=\""+gid+"\" class=\"btn btn-sm z-depth-0 white-text rgba-blue-strong\"></p><span id=\""+tid+"\"></span><br>" );
+                    $('#'+tid).text(data.translation[t].translation_en)
+                    $('#'+gid).text(data.translation[t].gram_term_id)
+                }
+                toggle();
+            }
+        });
+    }
+}
+
+var list = {{ list|safe }}
+switchVocab();
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,36 @@
+<canvas id="chart_tones" width="900px" height="400"></canvas>
+<script>
+  var data = {
+    datasets: [{
+        data: [
+          {% for i in tones %}
+            {{ tones[i] }},
+          {% endfor %}
+        ],
+        backgroundColor: ["rgb(242, 157, 129, 0.5)", "rgb(144, 191, 124, 0.5)", "rgb(7, 195, 228, 0.5)", "rgb(204, 162, 231, 0.5)"]
+    }],
+    labels: [
+      {% for i in tones %}
+        {{ i }},
+      {% endfor %}
+    ]
+};
+
+  var ctx = document.getElementById("chart_tones").getContext("2d");
+  var chart = new Chart(ctx, {
+    type: 'horizontalBar',
+    data: data,
+    options: {
+      legend: {
+        display: false
+      },
+      scales: {
+        xAxes: [{
+          ticks: {
+            beginAtZero: true
+          }
+        }]
+      }
+    }
+  });
+</script>

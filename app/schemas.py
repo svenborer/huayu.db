@@ -5,7 +5,7 @@ from app import (
 )
 from app.models import (
     Vocabulary,
-    Translation
+    GrammaticalTerm
 )
 
 class VocabularySchema(ma.ModelSchema):
@@ -14,24 +14,19 @@ class VocabularySchema(ma.ModelSchema):
         sqla_session = db.session
     pinyin = fields.Str()
     pinyin_numerical = fields.Str()
-    color = fields.Str()
-    translation = fields.Nested('VocabularyTranslationSchema', default=[], many=True)
+    translation = fields.Nested('TranslationSchema', default=[], many=True)
 
-class VocabularyTranslationSchema(ma.ModelSchema):
+class TranslationSchema(ma.ModelSchema):
     id = fields.Int()
     vocabulary_id = fields.Int()
     translation_en = fields.Str()
-    example = fields.Str()
     gram_term_id = fields.Str()
+    gram_term = fields.Nested('GrammaticalTermSchema')
+    example = fields.Nested('ExampleSchema', default=[], many=True)
 
-class TranslationSchema(ma.ModelSchema):
-    class Meta:
-        model = Translation
-        sqla_session = db.session
-    vocabulary = fields.Nested('TranslationVocabularySchema', default=None)
+class ExampleSchema(ma.ModelSchema):
+    example = fields.Str()
 
-class TranslationVocabularySchema(ma.ModelSchema):
-    id = fields.Int()
-    hanzi = fields.Str()
-    chapter_id = fields.Int()
-    vocab_id = fields.Int()
+class GrammaticalTermSchema(ma.ModelSchema):
+    id = fields.Str()
+    color = fields.Str()

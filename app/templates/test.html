@@ -4,6 +4,8 @@
 
 <h1 class="mt-4">{{ title }}</h1>
 
-
+{% for c in chapters %}
+<a class="btn btn-sm z-depth-0 white-text {{ c[2] }}" href="{{ url_for('test_chapter', chapter_id=c[0]) }}">{{ c[0] }}<a><span>{{ c[1] }}</span><br>
+{% endfor %}
 
 {% endblock %}

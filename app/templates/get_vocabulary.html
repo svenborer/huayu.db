@@ -4,12 +4,12 @@
 
 <div class="container">
     <div class="row">
-        <div class="col mt-3">
+        <div class="col mt-4">
             <!-- Title -->
             <div class="float-left">
-                <h1 id="hanzi">{{ vocabulary.hanzi }}</h1>
+                <h1 id="hanzi" style="font-size: 60px;">{{ vocabulary.hanzi }}</h1>
                 <!-- Subtitle -->
-                <p>{{ vocabulary.pinyin }}</p>
+                <p id="pinyin_numerical">{{ vocabulary.pinyin_numerical }}</p>
                 <i class="far fa-star" id="fav-icon"></i>
             </div>
             <div class="float-right">
@@ -96,6 +96,7 @@
     {% endif %}
 </div>
 
+<script type="text/javascript" src="{{ url_for('static', filename='main.js') }}"></script>
 <script>
 
     var hanzi = $('#hanzi').text();
@@ -125,6 +126,11 @@
             break;
         }
     });
+
+    pinyin_numerical = $("#pinyin_numerical").text()
+    hanzi_id = "#hanzi"
+
+    color_code_hanzi(hanzi_id, pinyin_numerical)
 
 </script>
 

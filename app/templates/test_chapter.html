@@ -3,12 +3,13 @@
 {% block content %}
 
 <h1 class="mt-4">{{ title }}</h1>
+<p><span id="done"></span>/<span id="total"></span></p>
 
 <div class="container">
     <div class="row">
         <div class="col mt-3">
             <div class="float-left">
-                <h1 id="hanzi"></h1>
+                <h1 id="hanzi" style="font-size: 60px;"></h1>
                 <p id="pinyin"></p>
             </div>
             <div class="float-right">
@@ -19,17 +20,15 @@
     <hr>
 </div>
 
+<script type="text/javascript" src="{{ url_for('static', filename='main.js') }}"></script>
 <script type="text/javascript">
-
-// {"chapter":304,"hanzi":"包裹","id":1,"number_in_chapter":1,"pinyin":"bāoguǒ"
-// ,"pinyin_numerical":"bao1guo3","translation":[{"example":"[<Translation Example －>]","gram_term_id":"N","id":1,"translation_en":"parcel, package","vocabulary_id":1}]}
 
 document.onkeydown = checkKey;
 
 function checkKey(e) {
     e = e || window.event;
     if (e.keyCode == '32') {
-        if ($('#hanzi').is(":visible")){
+        if ($('.example').is(":visible")){
             switchVocab();
         } else {
             toggle();
@@ -38,14 +37,20 @@ function checkKey(e) {
 }
 
 function toggle() {
-    $('#hanzi').toggle();
-    $('#chapter').toggle();
-    $('#pinyin').toggle();
+    hidden.forEach(function(h){
+        $(h).toggle();
+    });
 }
+
+// HANZI
+// var hidden = ['#pinyin', '#chapter', '#translation', '.example']
+// TRANSLATION
+var hidden = ['#hanzi', '#chapter', '#pinyin', '.example']
+// PINYIN
+// var hidden = ['#hanzi', '#chapter', '#translation', '.example']
 
 function switchVocab() {
     if (list && list.length) {
-        console.log(list)
         id = list[Math.floor(Math.random()*list.length)];
         var index = list.indexOf(id);
         if (index > -1) {
@@ -59,7 +64,7 @@ function switchVocab() {
             success: function (data) {
                 $('#translation').remove();
                 $('#hanzi').text(data.hanzi);
-                $('#pinyin').text(data.pinyin);
+                $('#pinyin').text(data.pinyin_numerical);
                 $('#chapter').text(data.chapter);
                 $( ".float-left" ).append( "<div id=\"translation\"></div>" );
                 var i = 0
@@ -67,17 +72,25 @@ function switchVocab() {
                     i++
                     var tid = "translation" + i
                     var gid = "gramterm" + i
-                    $( "#translation" ).append( "<p id=\""+gid+"\" class=\"btn btn-sm z-depth-0 white-text rgba-blue-strong\"></p><span id=\""+tid+"\"></span><br>" );
+                    $( "#translation" ).append( "<p id=\""+gid+"\" class=\"btn btn-sm z-depth-0 white-text "+data.translation[t].gram_term.color+"\"></p><span id=\""+tid+"\"></span><br>" );
+                    data.translation[t].example.forEach(function(e){
+                        $("#translation").append("<p class=\"example\">"+e.example+"</p>")
+                    })
                     $('#'+tid).text(data.translation[t].translation_en)
                     $('#'+gid).text(data.translation[t].gram_term_id)
                 }
                 toggle();
+                color_code_hanzi('#hanzi', data.pinyin_numerical);
+                color_code_examples('#hanzi', '.example')
+                $("#done").text(total-list.length)
             }
         });
     }
 }
 
 var list = {{ list|safe }}
+total = list.length
+$("#total").text(total)
 switchVocab();
 
 </script>

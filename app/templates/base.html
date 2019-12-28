@@ -38,25 +38,25 @@
                 <!-- Links -->
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('index') }}">Home</a>
+                        <a class="nav-link" href="{{ url_for('index') }}">家</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('vocabulary') }}">Vocabulary</a>
+                        <a class="nav-link" href="{{ url_for('vocabulary') }}">生詞</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('grammar') }}">Grammar</a>
+                        <a class="nav-link" href="{{ url_for('grammar') }}">語法</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('test') }}">Test</a>
+                        <a class="nav-link" href="{{ url_for('test') }}">考試</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('statistic') }}">Statistic</a>
+                        <a class="nav-link" href="{{ url_for('statistic') }}">統計</a>
                     </li>
                 </ul>
                 <!-- Links -->
                 <form class="form-inline" action="{{ url_for('search') }}">
                     <div class="md-form my-0">
-                        <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search" name="q">
+                        <input class="form-control mr-sm-2" type="text" placeholder="搜索" aria-label="Search" name="q">
                     </div>
                 </form>
             </div>

@@ -24,10 +24,7 @@ from app.models import (
     TranslationExample
 )
 from app.schemas import (
-    VocabularySchema,
-    TranslationVocabularySchema,
-    TranslationSchema,
-    VocabularyTranslationSchema
+    VocabularySchema
 )
 from app import (
     app,
@@ -158,6 +155,44 @@ def chapter(chapter_id):
         grammar_by_chapter=grammar_by_chapter,
         tones=tones)
 
+@app.route('/print/<chapter_id>')
+def print(chapter_id):
+    vocabulary = Vocabulary.query \
+        .filter(Vocabulary.chapter_id == chapter_id) \
+        .order_by(Vocabulary.chapter_id.desc())
+    grammar = Grammar.query \
+        .filter(Grammar.chapter_id == chapter_id)
+    grammar_by_chapter = {}
+    gr = db.session.query(GrammaticalTerm.id).all()
+    stats = {}
+    stats['START'] = 0
+    for g in gr:
+        i = db.session \
+            .query(func.count(Translation.gram_term_id)) \
+            .join(Vocabulary, (Vocabulary.id == Translation.vocabulary_id)) \
+            .filter(Translation.gram_term_id == g.id) \
+            .filter(Vocabulary.chapter_id == chapter_id).all()
+        stats[g.id] = i[0][0]
+    stats['END'] = 0
+    grammar_by_chapter[chapter_id] = stats
+    tones = {}
+    for i in range(1,5):
+        tones[i] = 0
+    for v in [v.pinyin_numerical for v in vocabulary]:
+        for i in range(1,5):
+            regex = '[{}]'.format(i)
+            tones[i] += len(re.findall(regex, v))
+    if vocabulary.first() is None and grammar.first() is None:
+        flash('No content found for chapter {}'.format(chapter_id))
+        return redirect(url_for('index'))
+    title = '第{}本書，第{}顆：{}'.format(vocabulary.first().chapter.book.id, vocabulary.first().chapter.number, vocabulary.first().chapter.name)
+    return render_template('chapter_print.html',
+        title=title,
+        vocabulary=vocabulary,
+        grammar=grammar,
+        grammar_by_chapter=grammar_by_chapter,
+        tones=tones)
+
 @app.route('/get/vocabulary/<vocabulary_id>')
 def get_vocabulary(vocabulary_id):
     vocabulary = Vocabulary.query \
@@ -201,19 +236,25 @@ def search():
 
 @app.route('/test', methods=['GET', 'POST'])
 def test():
-    return render_template('test.html', title='Test')
+    chapters = [[c.id, c.name, c.color] for c in Chapter.query.all()]
+    return render_template('test.html', title='Test', chapters=chapters)
 
 @app.route('/test/<chapter_id>')
 def test_chapter(chapter_id):
-    vocab = [[v.hanzi, v.id] for v in Vocabulary.query.all()]
-    list = []
-    for v in vocab:
-        f = "%{}%".format(v[0])
-        c = db.session.query(TranslationExample).filter(TranslationExample.example.like(f)).count()
-        if c > 10:
-            list.append(v[1])
+    title = 'Test Chapter {}'.format(chapter_id)
+    if chapter_id == "0":
+        title = 'Test most common used vocabulary'
+        vocab = [[v.hanzi, v.id] for v in Vocabulary.query.all()]
+        list = []
+        for v in vocab:
+            f = "%{}%".format(v[0])
+            c = db.session.query(TranslationExample).filter(TranslationExample.example.like(f)).count()
+            if c > 10:
+                list.append(v[1])
+    else:
+        list = [v.id for v in Vocabulary.query.filter(Vocabulary.chapter_id == chapter_id).all()]
     return render_template('test_chapter.html',
-        title='Test Chapter 0',
+        title=title,
         list=list)
 
 @app.route('/statistic')

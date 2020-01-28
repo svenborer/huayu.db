@@ -5,6 +5,7 @@
 <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js'></script>
 
 <h1 class="mt-4">{{ title }}</h1>
+<a class="btn btn-sm z-depth-0 mr-2 white-text rgba-blue-strong waves-effect waves-light" href="{{ url_for('print', chapter_id=vocabulary[0].chapter.id ) }}">Print</a>
 
 <h2 class="mt-4">Vocabulary</h2>
 {% include '_table_vocabulary.html' %}

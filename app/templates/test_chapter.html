@@ -25,6 +25,24 @@
 
 document.onkeydown = checkKey;
 
+function define_type() {
+    var type = '{{ type }}'
+
+    switch (type) {
+        case "hanzi":
+            hidden = ['#pinyin', '#chapter', '#translation', '.example']
+            break;
+        case "translation":
+            hidden = ['#hanzi', '#chapter', '#pinyin', '.example']
+            break;
+        case "pinyin":
+            hidden = ['#hanzi', '#chapter', '#translation', '.example']
+            break;
+        default:
+            break;
+    }
+}
+
 function checkKey(e) {
     e = e || window.event;
     if (e.keyCode == '32') {
@@ -41,13 +59,6 @@ function toggle() {
         $(h).toggle();
     });
 }
-
-// HANZI
-// var hidden = ['#pinyin', '#chapter', '#translation', '.example']
-// TRANSLATION
-var hidden = ['#hanzi', '#chapter', '#pinyin', '.example']
-// PINYIN
-// var hidden = ['#hanzi', '#chapter', '#translation', '.example']
 
 function switchVocab() {
     if (list && list.length) {
@@ -91,6 +102,7 @@ function switchVocab() {
 var list = {{ list|safe }}
 total = list.length
 $("#total").text(total)
+define_type();
 switchVocab();
 
 </script>

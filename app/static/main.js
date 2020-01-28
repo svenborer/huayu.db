@@ -1,5 +1,5 @@
 function color_code_hanzi(hanzi_id, pinyin_numerical) {
-    var special_chars = ['…','／','（','）']
+    var special_chars = ['…','／','（','）','，']
     special_chars.forEach(function(c){
         pinyin_numerical = pinyin_numerical.split(c).join(c+'5')
     })
@@ -21,10 +21,8 @@ function color_code_hanzi(hanzi_id, pinyin_numerical) {
             case "4":
                 color = 'purple-text'
                 break;
-            case "5":
-                color = ''
-                break;
             default:
+                color = ''
                 break;
         }
         $('#hanzi').append("<span class=\""+color+"\">"+hanzi[i++]+"<span>")
@@ -39,7 +37,7 @@ function color_code_examples(hanzi_id, example_class) {
         e = $(this)
         hanzi_list.forEach(function (item) {
             if (item.match(/….*/)) {
-                item.split('…').forEach(function (item) {
+                item.split('…').filter(function(el) { return el; }).forEach(function (item) {
                     var re = new RegExp(item,"g");
                     example = e.html().replace(re, "<span class=\"highlight\">" + item + "</span>")
                     e.html(example);

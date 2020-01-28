@@ -4,8 +4,18 @@
 
 <h1 class="mt-4">{{ title }}</h1>
 
-{% for c in chapters %}
-<a class="btn btn-sm z-depth-0 white-text {{ c[2] }}" href="{{ url_for('test_chapter', chapter_id=c[0]) }}">{{ c[0] }}<a><span>{{ c[1] }}</span><br>
-{% endfor %}
+<form action="{{ url_for('test') }}" method="POST">
+    <select class="browser-default custom-select custom-select-lg mb-3" name="chapter">
+    {% for c in chapters %}
+        <option value="{{ c[0] }}">[{{c[0]}}] {{ c[1] }}</option>
+    {% endfor %}
+    </select>
+    <select class="browser-default custom-select custom-select-lg mb-3" name="type">
+        <option value="translation">Translation</option>
+        <option value="hanzi">Hanzi</option>
+        <option value="pinyin">Pinyin</option>
+    </select>
+    <button class="btn btn-lg rgba-red-strong" type="submit">Start</button>
+</form>
 
 {% endblock %}

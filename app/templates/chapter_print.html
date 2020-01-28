@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js'></script>
+
+<h3 class="mt-4">{{ title }}</h3>
+
+<table class="table">
+    <tbody>
+      {% for v in vocabulary %}
+      <tr>
+        <td>
+            <h4 id="hanzi">{{ v.hanzi }}</h4>
+            <span>{{ v.pinyin_numerical }}</span>
+        </td>
+        <td>
+          {% for t in v.translation %}
+              <span class="btn btn-sm z-depth-0 mr-2 white-text {{ t.gram_term.color }}">
+                {{ t.gram_term.id }}
+              </span>{{ t.translation_en|truncate(60) }}
+            
+          {% endfor %}
+          <br>
+          {% for t in v.translation %}
+            {% for e in t.example %}
+              <span class="example">{{ e.example }}</span><br>
+            {% endfor %}
+          {% endfor %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <hr>
+
+{% if grammar[0] %}
+<h2 class="mt-4">Grammar</h2>
+{% include '_table_grammar.html' %}
+<hr>
+{% endif %}
+
+<script>
+
+$('tr').each(function () {
+  var hanzi = $(this).find('#hanzi').text();
+  var hanzi_list = hanzi.split('／');
+  $(this).find($('.example')).each(function () {
+      e = $(this)
+      hanzi_list.forEach(function (item) {
+          if (item.match(/….*/)) {
+              is = item.split('…')
+              is = is.filter(n => n)
+              console.log(is)
+              is.forEach(function (item) {
+                  var re = new RegExp(item,"g");
+                  example = e.html().replace(re, "<span class=\"highlight\">" + item + "</span>")
+                  e.html(example);
+              })
+          } else {
+              var re = new RegExp(item,"g");
+              example = e.html().replace(re, "<span class=\"highlight\">" + item + "</span>")
+              e.html(example);
+          }
+      })
+  });
+});
+
+</script>
+
+{% endblock %}

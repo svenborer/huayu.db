@@ -21,23 +21,25 @@ from app.models import (
     GrammaticalTerm,
     Statistic,
     Grammar,
-    TranslationExample
+    TranslationExample,
+    Favorite
 )
 from app.schemas import (
     VocabularySchema
 )
+from app.helper import *
 from app import (
     app,
     db,
     ma
 )
 
-@app.route('/')
-@app.route('/index')
+@app.route('/huayu-db/')
+@app.route('/huayu-db/index')
 def index():
     return redirect(url_for('vocabulary'))
 
-@app.route('/vocabulary')
+@app.route('/huayu-db/vocabulary')
 def vocabulary():
     vocabulary = Vocabulary.query \
         .order_by(Vocabulary.chapter_id.desc()) \
@@ -46,7 +48,19 @@ def vocabulary():
         title='Vocabulary',
         vocabulary=vocabulary)
 
-@app.route('/vocabulary/grammatical_term/<gram_term_id>')
+@app.route('/huayu-db/vocabulary/favorite')
+def vocabulary_by_favorite():
+    vocabulary = Vocabulary.query \
+        .filter(Vocabulary.id == Favorite.vocabulary_id) \
+        .filter(Favorite.favorite == True) \
+        .order_by(Vocabulary.id.desc()) \
+        .limit(200)
+    return render_template('vocabulary.html',
+        title='Favorite Vocabulary',
+        vocabulary=vocabulary)
+
+
+@app.route('/huayu-db/vocabulary/grammatical_term/<gram_term_id>')
 def vocabulary_by_grammatical_term(gram_term_id):
     vocabulary = Vocabulary.query \
         .join(Translation, (Translation.vocabulary_id == Vocabulary.id)) \
@@ -59,7 +73,7 @@ def vocabulary_by_grammatical_term(gram_term_id):
         title=title,
         vocabulary=vocabulary)
 
-@app.route('/vocabulary/chapter/<chapter_id>')
+@app.route('/huayu-db/vocabulary/chapter/<chapter_id>')
 def vocabulary_by_chapter(chapter_id):
     vocabulary = Vocabulary.query \
         .filter(Vocabulary.chapter_id == chapter_id)
@@ -71,7 +85,7 @@ def vocabulary_by_chapter(chapter_id):
         title=title,
         vocabulary=vocabulary)
 
-@app.route('/vocabulary/book/<book_id>')
+@app.route('/huayu-db/vocabulary/book/<book_id>')
 def vocabulary_by_book(book_id):
     vocabulary = Vocabulary.query \
         .join(Chapter, Book) \
@@ -84,7 +98,7 @@ def vocabulary_by_book(book_id):
         title=title,
         vocabulary=vocabulary)
 
-@app.route('/grammar')
+@app.route('/huayu-db/grammar')
 def grammar():
     grammar = Grammar.query \
         .order_by(Grammar.chapter_id.desc())
@@ -92,7 +106,7 @@ def grammar():
         title='Grammar',
         grammar=grammar)
 
-@app.route('/grammar/chapter/<chapter_id>')
+@app.route('/huayu-db/grammar/chapter/<chapter_id>')
 def grammar_by_chapter(chapter_id):
     grammar = Grammar.query \
         .filter(Grammar.chapter_id == chapter_id)
@@ -104,7 +118,7 @@ def grammar_by_chapter(chapter_id):
         title=title,
         grammar=grammar)
 
-@app.route('/grammar/book/<book_id>')
+@app.route('/huayu-db/grammar/book/<book_id>')
 def grammar_by_book(book_id):
     grammar = Grammar.query \
         .join(Chapter, (Chapter.id == Grammar.chapter_id)) \
@@ -118,7 +132,7 @@ def grammar_by_book(book_id):
         title=title,
         grammar=grammar)
 
-@app.route('/chapter/<chapter_id>')
+@app.route('/huayu-db/chapter/<chapter_id>')
 def chapter(chapter_id):
     vocabulary = Vocabulary.query \
         .filter(Vocabulary.chapter_id == chapter_id)
@@ -155,7 +169,7 @@ def chapter(chapter_id):
         grammar_by_chapter=grammar_by_chapter,
         tones=tones)
 
-@app.route('/print/<chapter_id>')
+@app.route('/huayu-db/print/<chapter_id>')
 def print(chapter_id):
     vocabulary = Vocabulary.query \
         .filter(Vocabulary.chapter_id == chapter_id) \
@@ -193,7 +207,7 @@ def print(chapter_id):
         grammar_by_chapter=grammar_by_chapter,
         tones=tones)
 
-@app.route('/get/vocabulary/<vocabulary_id>')
+@app.route('/huayu-db/get/vocabulary/<vocabulary_id>')
 def get_vocabulary(vocabulary_id):
     vocabulary = Vocabulary.query \
         .filter_by(id=vocabulary_id) \
@@ -204,7 +218,7 @@ def get_vocabulary(vocabulary_id):
         title='Vocabulary {}'.format(vocabulary.hanzi),
         vocabulary=vocabulary)
 
-@app.route('/get/grammar/<grammar_id>')
+@app.route('/huayu-db/get/grammar/<grammar_id>')
 def get_grammar(grammar_id):
     if grammar_id == 'random':
         grammar = Grammar.query \
@@ -220,7 +234,7 @@ def get_grammar(grammar_id):
         title='Get Grammar',
         grammar=grammar)
 
-@app.route('/search/', methods=['GET'])
+@app.route('/huayu-db/search/', methods=['GET'])
 def search():
     query = request.args.get('q')
     pattern = '%{}%'.format(query)
@@ -234,30 +248,26 @@ def search():
         vocabulary=vocabulary,
         grammar=grammar)
 
-@app.route('/test', methods=['GET', 'POST'])
+@app.route('/huayu-db/test', methods=['GET', 'POST'])
 def test():
-    chapters = [[c.id, c.name, c.color] for c in Chapter.query.all()]
-    return render_template('test.html', title='Test', chapters=chapters)
-
-@app.route('/test/<chapter_id>')
-def test_chapter(chapter_id):
-    title = 'Test Chapter {}'.format(chapter_id)
-    if chapter_id == "0":
-        title = 'Test most common used vocabulary'
-        vocab = [[v.hanzi, v.id] for v in Vocabulary.query.all()]
-        list = []
-        for v in vocab:
-            f = "%{}%".format(v[0])
-            c = db.session.query(TranslationExample).filter(TranslationExample.example.like(f)).count()
-            if c > 10:
-                list.append(v[1])
+    if request.method == 'POST':
+        chapters = request.form.getlist('chapters')
+        type = request.form.get('type')
+        limit = request.form.get('limit')
+        if limit == '':
+            limit = 1000
+        favorites = request.form.get('favorites_only')
+        title = 'Test Chapter {}'.format(chapters)
+        list = get_vocabulary_id_list(chapters = chapters, limit = limit)
+        return render_template('test_chapter.html',
+            title=title,
+            list=list,
+            type=type)
     else:
-        list = [v.id for v in Vocabulary.query.filter(Vocabulary.chapter_id == chapter_id).all()]
-    return render_template('test_chapter.html',
-        title=title,
-        list=list)
+        chapters = get_chapter_dict()
+        return render_template('test.html', title='Test', chapters=chapters)
 
-@app.route('/statistic')
+@app.route('/huayu-db/statistic')
 def statistic():
     grammar_by_chapter = {}
     gr = db.session.query(GrammaticalTerm.id).all()
@@ -313,7 +323,7 @@ def statistic():
         c_unique_chars=c_unique_chars,
         total=total)
 
-@app.route('/api/vocab/<vocab_id>', methods=['GET'])
+@app.route('/huayu-db/api/vocab/<vocab_id>', methods=['GET'])
 def get_vocab_by_id(vocab_id):
     vocab = (
         Vocabulary.query.filter(Vocabulary.id == vocab_id)
@@ -323,8 +333,23 @@ def get_vocab_by_id(vocab_id):
         vocab_schema = VocabularySchema()
         data = vocab_schema.dump(vocab)
         return data
+
+@app.route('/huayu-db/vocabulary/favorite/<vocab_id>', methods=['GET'])
+def favorite_vocab(vocab_id):
+    is_vocab = Vocabulary.query.filter(Vocabulary.id == vocab_id).first_or_404()
+    if is_vocab:
+        is_fav = Favorite.query.filter(Favorite.vocabulary_id == vocab_id).all()
+        if is_fav:
+            text = '{} has been removed from favorites.'
+            Favorite.query.filter(Favorite.vocabulary_id == vocab_id).delete()
+        else:
+            text = '{} has been added to favorites.'
+            f = Favorite(vocabulary_id = vocab_id, favorite = True)
+            db.session.add(f)
+        db.session.commit()
+        return text.format(vocab_id)
     else:
-        abort(404, f"Vocab not found for Chapter: {chapter_id}")
+        return redirect(url_for('index'))
 
 @app.context_processor
 def inject_now():

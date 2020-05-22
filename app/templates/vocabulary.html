@@ -3,6 +3,7 @@
 {% block content %}
 
 <h1 class="mt-4">{{ title }}</h1>
+<a class="btn btn-sm z-depth-0 mr-2 white-text rgba-blue-strong waves-effect waves-light" href="{{ url_for('vocabulary_by_favorite') }}">Favorites</a>
 
 {% include '_table_vocabulary.html' %}
 

@@ -43,6 +43,11 @@ class Vocabulary(db.Model):
         backref='vocabulary',
         lazy='dynamic'
     )
+    favorite = db.relationship(
+        'Favorite',
+        backref='vocabulary',
+        lazy='dynamic'
+    )
 
     @property
     def pinyin(self):
@@ -191,6 +196,15 @@ class Statistic(db.Model):
 
     def __repr__(self):
         return '<Stat {}>'.format(self.id)
+
+class Favorite(db.Model):
+    __tablename__ = 'tbl_favorite'
+    id = db.Column(db.Integer, primary_key=True)
+    vocabulary_id = db.Column(db.Integer, db.ForeignKey('tbl_vocabulary.id'))
+    favorite = db.Column(db.Boolean)
+
+    def __repr__(self):
+        return '<Favorite {}>'.format(self.id)
 
 def get_more_grammar_examples(search_pattern):
     all_examples = []

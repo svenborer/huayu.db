@@ -1,5 +1,5 @@
 from app import app, db, ma
-from app.models import Translation, Vocabulary, Chapter, Book, GrammaticalTerm, Statistic, Grammar, TranslationExample, GrammarExample, asoc_translation_example
+from app.models import Translation, Vocabulary, Chapter, Book, GrammaticalTerm, Statistic, Grammar, TranslationExample, GrammarExample, asoc_translation_example, Favorite
 
 @app.shell_context_processor
 def make_shell_context():
@@ -12,4 +12,5 @@ def make_shell_context():
         'TranslationExample' : TranslationExample, \
         'Statistic' : Statistic, \
         'Grammar' : Grammar, \
-        'asoc_translation_example' : asoc_translation_example}
+        'asoc_translation_example' : asoc_translation_example,
+        'Favorite' : Favorite}

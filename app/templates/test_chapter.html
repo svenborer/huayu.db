@@ -2,8 +2,18 @@
 
 {% block content %}
 
+<br>
+
+<div class="alert alert-success" role="alert" id="information"></div>
+
 <h1 class="mt-4">{{ title }}</h1>
-<p><span id="done"></span>/<span id="total"></span></p>
+
+<p><span id="done"></span>/<span id="total"></span> (<span id="percentage"></span>%)</p>
+
+<div class="progress">
+    <div class="progress-bar rgba-blue-strong" role="progressbar" style="" aria-valuenow="" aria-valuemin="0"
+        aria-valuemax="100"></div>
+</div>
 
 <div class="container">
     <div class="row">
@@ -11,6 +21,8 @@
             <div class="float-left">
                 <h1 id="hanzi" style="font-size: 60px;"></h1>
                 <p id="pinyin"></p>
+                <i class="far fa-star" id="fav-icon"></i>
+                <hr>
             </div>
             <div class="float-right">
                 <p id="chapter" class="btn btn-sm z-depth-0 white-text rgba-blue-strong"></p>
@@ -23,50 +35,134 @@
 <script type="text/javascript" src="{{ url_for('static', filename='main.js') }}"></script>
 <script type="text/javascript">
 
-document.onkeydown = checkKey;
+    document.onkeydown = checkKey;
 
-function define_type() {
-    var type = '{{ type }}'
+    function define_type() {
+        type = '{{ type }}'
 
-    switch (type) {
-        case "hanzi":
-            hidden = ['#pinyin', '#chapter', '#translation', '.example']
-            break;
-        case "translation":
-            hidden = ['#hanzi', '#chapter', '#pinyin', '.example']
-            break;
-        case "pinyin":
-            hidden = ['#hanzi', '#chapter', '#translation', '.example']
-            break;
-        default:
-            break;
-    }
-}
-
-function checkKey(e) {
-    e = e || window.event;
-    if (e.keyCode == '32') {
-        if ($('.example').is(":visible")){
-            switchVocab();
-        } else {
-            toggle();
+        switch (type) {
+            case "hanzi":
+                hidden = ['#pinyin', '#chapter', '#translation', '.example', '#fav-icon']
+                break;
+            case "translation":
+                hidden = ['#hanzi', '#chapter', '#pinyin', '.example', '#fav-icon']
+                break;
+            case "pinyin":
+                hidden = ['#hanzi', '#chapter', '#translation', '.example', '#fav-icon']
+                break;
+            default:
+                break;
         }
     }
-}
 
-function toggle() {
-    hidden.forEach(function(h){
-        $(h).toggle();
-    });
-}
-
-function switchVocab() {
-    if (list && list.length) {
-        id = list[Math.floor(Math.random()*list.length)];
-        var index = list.indexOf(id);
-        if (index > -1) {
-            list.splice(index, 1);
+    function checkKey(e) {
+        e = e || window.event;
+        if (e.keyCode == '32') {
+            if ($('.example').is(":visible")) {
+                index += 1
+                if (highest < index) {
+                    highest = index
+                }
+                switchVocab();
+            } else {
+                show();
+                if (type == "hanzi") {
+                    color_code_hanzi('#hanzi', $("#pinyin").text());
+                }
+                revealed.push(index)
+            }
         }
+        if (e.keyCode == '37') {
+            if (index != 0) {
+                index -= 1
+                switchVocab()
+            }
+        }
+        if (e.keyCode == '39') {
+            if (index < highest) {
+                index += 1
+                switchVocab()
+            }
+        }
+        if (e.keyCode == '70') {
+            $("#fav-icon").toggleClass('far fas');
+            $.ajax({
+                url: "/vocabulary/favorite/" + id, success: function (result) {
+                    $('#information').show();
+                    $("#information").text(result)
+                    setTimeout(function(){
+                        $('#information').hide();
+                    }, 5000);
+                }
+            });
+        }
+        if (type == "hanzi") {
+            if (e.keyCode == '49') {
+                checkToneInput(1)
+            }
+            if (e.keyCode == '50') {
+                checkToneInput(2)
+            }
+            if (e.keyCode == '51') {
+                checkToneInput(3)
+            }
+            if (e.keyCode == '52') {
+                checkToneInput(4)
+            }
+            if (e.keyCode == '53') {
+                checkToneInput(5)
+            }
+        }
+    }
+
+    function getTonesList() {
+        special_chars = ['…', '／', '（', '）', '，']
+        pinyin_numerical = $("#pinyin").text()
+        special_chars.forEach(function (c) {
+            pinyin_numerical = pinyin_numerical.split(c).join(c + '5')
+        })
+        tone_list = pinyin_numerical.match(/\d+/g);
+        console.log(tone_list)
+        return tone_list
+    }
+
+    function checkToneInput(tone) {
+        if (!tones_solved) {
+            tones_input.push(tone.toString())
+            i = -1
+            tones_input.forEach(function (t) {
+                i += 1
+                if (tones_list[i] != t) {
+                    tones_input = []
+                } else {
+
+                }
+            })
+            console.log(tones_input)
+            if (tones_input.join('') == tones_list.join('')) {
+                tones_solved = true
+                color_code_hanzi('#hanzi', $("#pinyin").text())
+                show()
+            }
+        }
+    }
+
+    function hide() {
+        hidden.forEach(function (h) {
+            $(h).hide();
+        });
+    }
+
+    function show() {
+        hidden.forEach(function (h) {
+            $(h).show();
+        });
+    }
+
+    function switchVocab() {
+        tones_solved = false
+        tones_input = []
+        id = list[index]
         url = "/api/vocab/" + id
         $.ajax({
             type: 'GET',
@@ -74,36 +170,60 @@ function switchVocab() {
             dataType: 'json',
             success: function (data) {
                 $('#translation').remove();
+                $('#information').hide();
                 $('#hanzi').text(data.hanzi);
                 $('#pinyin').text(data.pinyin_numerical);
-                $('#chapter').text(data.chapter);
-                $( ".float-left" ).append( "<div id=\"translation\"></div>" );
+                $('#chapter').text(data.chapter_id);
+                $(".float-left").append("<div id=\"translation\"></div>");
                 var i = 0
-                for(var t in data.translation) {
+                for (var t in data.translation) {
                     i++
                     var tid = "translation" + i
                     var gid = "gramterm" + i
-                    $( "#translation" ).append( "<p id=\""+gid+"\" class=\"btn btn-sm z-depth-0 white-text "+data.translation[t].gram_term.color+"\"></p><span id=\""+tid+"\"></span><br>" );
-                    data.translation[t].example.forEach(function(e){
-                        $("#translation").append("<p class=\"example\">"+e.example+"</p>")
+                    $("#translation").append("<p id=\"" + gid + "\" class=\"btn btn-sm z-depth-0 white-text " + data.translation[t].gram_term.color + "\"><b></b></p><span id=\"" + tid + "\"></span><br>");
+                    data.translation[t].example.forEach(function (e) {
+                        $("#translation").append("<p class=\"example\">" + e.example + "</p>")
                     })
-                    $('#'+tid).text(data.translation[t].translation_en)
-                    $('#'+gid).text(data.translation[t].gram_term_id)
+                    $('#' + tid).text(data.translation[t].translation_en)
+                    $('#' + gid + " > b").text(data.translation[t].gram_term_id)
                 }
-                toggle();
-                color_code_hanzi('#hanzi', data.pinyin_numerical);
+                $("#fav-icon").addClass('far');
+                $("#fav-icon").removeClass('fas');
+                if (data.favorite[0]) {
+                    console.log(data.favorite)
+                    $("#fav-icon").removeClass('far');
+                    $("#fav-icon").addClass('fas');
+                }
+                if (revealed.includes(index) == false) {
+                    hide();
+                } else {
+                    show();
+                }
+                if (type != "hanzi" || revealed.includes(index) == true) {
+                    color_code_hanzi('#hanzi', data.pinyin_numerical);
+                }
                 color_code_examples('#hanzi', '.example')
-                $("#done").text(total-list.length)
+                done = index + 1
+                percentage = Math.round((100 / total) * done)
+                $("#done").text(done)
+                $("#percentage").text(percentage)
+                $('.progress-bar').css('width', percentage + "%").attr('aria-valuenow', percentage)
+                tones_list = getTonesList()
             }
         });
     }
-}
 
-var list = {{ list|safe }}
-total = list.length
-$("#total").text(total)
-define_type();
-switchVocab();
+    var list = {{ list| safe }}
+    total = list.length
+    revealed = []
+    highest = 0
+    index = 0
+    type = ""
+    id = list[index]
+    $("#total").text(total)
+    define_type();
+    switchVocab();
+    $('#information').hide();
 
 </script>
 

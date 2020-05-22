@@ -5,16 +5,45 @@
 <h1 class="mt-4">{{ title }}</h1>
 
 <form action="{{ url_for('test') }}" method="POST">
-    <select class="browser-default custom-select custom-select-lg mb-3" name="chapter">
-    {% for c in chapters %}
-        <option value="{{ c[0] }}">[{{c[0]}}] {{ c[1] }}</option>
+
+    <h3>Chapter</h3>
+    {% for key in chapters %}
+        <h4>{{ key }}</h4>
+        {% for i in chapters[key] %}
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="defaultUnchecked{{ i[0] }}" name="chapters"
+                    value="{{ i[0] }}">
+                <label class="custom-control-label" for="defaultUnchecked{{ i[0] }}">[{{ i[0] }}]{{ i[1] }}</label>
+            </div>
+        {% endfor %}
     {% endfor %}
-    </select>
-    <select class="browser-default custom-select custom-select-lg mb-3" name="type">
-        <option value="translation">Translation</option>
-        <option value="hanzi">Hanzi</option>
-        <option value="pinyin">Pinyin</option>
-    </select>
+    <hr>
+    <h3>Type</h3>
+    <div class="custom-control custom-radio">
+        <input type="radio" class="custom-control-input" id="translation" name="type" value="translation" checked>
+        <label class="custom-control-label" for="translation">Translation</label>
+    </div>
+    <div class="custom-control custom-radio">
+        <input type="radio" class="custom-control-input" id="hanzi" name="type" value="hanzi">
+        <label class="custom-control-label" for="hanzi">Hanzi</label>
+    </div>
+    <div class="custom-control custom-radio">
+        <input type="radio" class="custom-control-input" id="pinyin" name="type" value="pinyin">
+        <label class="custom-control-label" for="pinyin">Pinyin</label>
+    </div>
+    <hr>
+    <h3>Limit</h3>
+    <div class="md-form">
+        <input type="text" id="form1" class="form-control" name="limit" >
+        <label for="form1">Limit</label>
+    </div>
+    <hr>
+    <h3>Other options</h3>
+    <div class="custom-control custom-checkbox">
+        <input type="checkbox" class="custom-control-input" id="favorites_only" name="favorites_only">
+        <label class="custom-control-label" for="favorites_only">Favorites only</label>
+    </div>
+    <br>
     <button class="btn btn-lg rgba-red-strong" type="submit">Start</button>
 </form>
 
